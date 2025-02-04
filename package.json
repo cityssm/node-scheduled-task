@@ -1,0 +1,38 @@
+{
+  "name": "@cityssm/scheduled-task",
+  "version": "0.1.0",
+  "description": "Schedules recurring tasks while managing on-demand executions and limiting simultaneous executions.",
+  "type": "module",
+  "exports": "./index.js",
+  "scripts": {
+    "test": "node --test",
+    "coverage": "c8 --reporter=lcov --reporter=text --reporter=text-summary node --test"
+  },
+  "keywords": [
+    "task"
+  ],
+  "homepage": "https://github.com/cityssm/node-scheduled-task#readme",
+  "bugs": {
+    "url": "https://github.com/cityssm/node-scheduled-task/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cityssm/node-scheduled-task.git"
+  },
+  "author": "The Corporation of the City of Sault Ste. Marie",
+  "license": "MIT",
+  "dependencies": {
+    "async-sema": "^3.1.1",
+    "camelcase": "^8.0.0",
+    "debug": "^4.4.0",
+    "exit-hook": "^4.0.0",
+    "node-schedule": "^2.1.1"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.12",
+    "@types/node": "^22.13.1",
+    "@types/node-schedule": "^2.1.7",
+    "eslint-config-cityssm": "^19.0.0",
+    "prettier-config-cityssm": "^1.0.0"
+  }
+}
