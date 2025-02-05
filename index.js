@@ -34,6 +34,9 @@ export class ScheduledTask {
         }
         this.setLastRunMillis(options.lastRunMillis ?? 0);
         this.setMinimumIntervalMillis(options.minimumIntervalMillis ?? 0);
+        if (options.startTask ?? false) {
+            this.startTask();
+        }
     }
     setLastRunMillis(lastRunMillis) {
         this.#lastRunMillis = lastRunMillis;

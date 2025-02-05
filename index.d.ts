@@ -4,6 +4,7 @@ export interface ScheduledTaskOptions {
     schedule?: schedule.Spec;
     lastRunMillis?: number;
     minimumIntervalMillis?: number;
+    startTask?: boolean;
 }
 export declare class ScheduledTask {
     #private;
