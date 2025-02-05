@@ -41,4 +41,4 @@ export declare class ScheduledTask {
      */
     stopTask(): void;
 }
-export {};
+export * as nodeSchedule from 'node-schedule';
