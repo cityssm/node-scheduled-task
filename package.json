@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "description": "Schedules recurring tasks while managing on-demand executions and limiting simultaneous executions.",
   "type": "module",
-  "exports": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./debug": "./debug.config.js"
+  },
   "scripts": {
     "test": "node --test",
     "coverage": "c8 --reporter=lcov --reporter=text --reporter=text-summary node --test"

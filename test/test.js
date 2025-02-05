@@ -12,7 +12,7 @@ await describe('scheduled-task', async () => {
         const taskMillis = 1000;
         const minimumIntervalMillis = taskMillis * 5;
         let executionCount = 0;
-        const task = new ScheduledTask('test', async () => {
+        const task = new ScheduledTask(`${taskMillis} ms test task`, async () => {
             await delay(taskMillis);
             executionCount += 1;
         }, {

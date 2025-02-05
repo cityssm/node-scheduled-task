@@ -5,6 +5,7 @@ import exitHook from 'exit-hook'
 import schedule from 'node-schedule'
 
 import { DEBUG_NAMESPACE } from './debug.config.js'
+import { alreadyStartedError } from './errors.js'
 
 type TaskFunction = () => void | Promise<void>
 
@@ -17,9 +18,12 @@ export interface ScheduledTaskOptions {
 export class ScheduledTask {
   readonly #taskName: string
   readonly #taskFunction: TaskFunction
+
+  readonly #debugNamespace: string
   readonly #debug: Debug.Debugger
 
   readonly #semaphore = new Sema(1)
+
   #lastRunMillis: number
   #minimumIntervalMillis: number
 
@@ -37,11 +41,16 @@ export class ScheduledTask {
 
   #exitHookIsInitialized = false
 
-  constructor(taskName: string, taskFunction: TaskFunction, options: ScheduledTaskOptions = {}) {
+  constructor(
+    taskName: string,
+    taskFunction: TaskFunction,
+    options: ScheduledTaskOptions = {}
+  ) {
     this.#taskName = taskName
     this.#taskFunction = taskFunction
 
-    this.#debug = Debug(`${DEBUG_NAMESPACE}:${camelCase(this.#taskName)}`)
+    this.#debugNamespace = `${DEBUG_NAMESPACE}:${camelCase(taskName)}`
+    this.#debug = Debug(this.#debugNamespace)
 
     if (options.schedule !== undefined) {
       this.setSchedule(options.schedule)
@@ -65,15 +74,21 @@ export class ScheduledTask {
 
   setMinimumIntervalMillis(minimumIntervalMillis: number): void {
     if (this.#taskHasStarted) {
-      throw new Error('Task has already started.')
+      throw alreadyStartedError
     }
 
     this.#minimumIntervalMillis = minimumIntervalMillis
   }
 
+  /**
+   * Sets the schedule for the task.
+   * Can only be called before the task is started.
+   * @see https://www.npmjs.com/package/node-schedule#usage
+   * @param schedule The schedule for the task.
+   */
   setSchedule(schedule: schedule.Spec): void {
     if (this.#taskHasStarted) {
-      throw new Error('Task has already started.')
+      throw alreadyStartedError
     }
 
     this.#schedule = schedule
@@ -92,7 +107,7 @@ export class ScheduledTask {
   }
 
   /**
-   * Runs the task.
+   * Runs the task once.
    */
   async runTask(): Promise<void> {
     await this.#semaphore.acquire()
@@ -117,7 +132,7 @@ export class ScheduledTask {
    */
   startTask(): void {
     if (this.#taskHasStarted) {
-      throw new Error('Task has already started.')
+      throw alreadyStartedError
     }
 
     this.#taskHasStarted = true
@@ -138,12 +153,16 @@ export class ScheduledTask {
       exitHook(() => {
         try {
           this.#job?.cancel()
-        } catch (error) {
-          this.#debug('Error cancelling job for task', error)
+        } catch {
+          // Ignore errors
         }
       })
       this.#exitHookIsInitialized = true
     }
+  }
+
+  hasStarted(): boolean {
+    return this.#taskHasStarted
   }
 
   /**

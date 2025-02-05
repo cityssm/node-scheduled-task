@@ -12,6 +12,12 @@ export declare class ScheduledTask {
     setLastRunTime(lastRun: Date): void;
     getLastRunMillis(): number;
     setMinimumIntervalMillis(minimumIntervalMillis: number): void;
+    /**
+     * Sets the schedule for the task.
+     * Can only be called before the task is started.
+     * @see https://www.npmjs.com/package/node-schedule#usage
+     * @param schedule The schedule for the task.
+     */
     setSchedule(schedule: schedule.Spec): void;
     /**
      * Checks if the task can run.
@@ -20,13 +26,14 @@ export declare class ScheduledTask {
      */
     canRunTask(): boolean;
     /**
-     * Runs the task.
+     * Runs the task once.
      */
     runTask(): Promise<void>;
     /**
      * Starts the task.
      */
     startTask(): void;
+    hasStarted(): boolean;
     /**
      * Stops the task.
      */
