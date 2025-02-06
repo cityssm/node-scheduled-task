@@ -2,7 +2,7 @@ import { Sema } from 'async-sema'
 import camelCase from 'camelcase'
 import Debug from 'debug'
 import exitHook from 'exit-hook'
-import schedule from 'node-schedule'
+import nodeSchedule from 'node-schedule'
 
 import { DEBUG_NAMESPACE } from './debug.config.js'
 import { alreadyStartedError } from './errors.js'
@@ -10,7 +10,7 @@ import { alreadyStartedError } from './errors.js'
 type TaskFunction = () => void | Promise<void>
 
 export interface ScheduledTaskOptions {
-  schedule?: schedule.Spec
+  schedule?: nodeSchedule.Spec
   lastRunMillis?: number
   minimumIntervalMillis?: number
   startTask?: boolean
@@ -30,8 +30,8 @@ export class ScheduledTask {
 
   #taskHasStarted = false
 
-  #job: schedule.Job | undefined
-  #schedule: schedule.Spec = {
+  #job: nodeSchedule.Job | undefined
+  #schedule: nodeSchedule.Spec = {
     second: 0,
     minute: 0,
     hour: 0,
@@ -91,7 +91,7 @@ export class ScheduledTask {
    * @see https://www.npmjs.com/package/node-schedule#usage
    * @param schedule The schedule for the task.
    */
-  setSchedule(schedule: schedule.Spec): void {
+  setSchedule(schedule: nodeSchedule.Spec): void {
     if (this.#taskHasStarted) {
       throw alreadyStartedError
     }
@@ -143,7 +143,7 @@ export class ScheduledTask {
 
     this.#taskHasStarted = true
 
-    this.#job = schedule.scheduleJob(
+    this.#job = nodeSchedule.scheduleJob(
       this.#taskName,
       this.#schedule,
       async () => {

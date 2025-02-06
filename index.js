@@ -2,7 +2,7 @@ import { Sema } from 'async-sema';
 import camelCase from 'camelcase';
 import Debug from 'debug';
 import exitHook from 'exit-hook';
-import schedule from 'node-schedule';
+import nodeSchedule from 'node-schedule';
 import { DEBUG_NAMESPACE } from './debug.config.js';
 import { alreadyStartedError } from './errors.js';
 export class ScheduledTask {
@@ -102,7 +102,7 @@ export class ScheduledTask {
             throw alreadyStartedError;
         }
         this.#taskHasStarted = true;
-        this.#job = schedule.scheduleJob(this.#taskName, this.#schedule, async () => {
+        this.#job = nodeSchedule.scheduleJob(this.#taskName, this.#schedule, async () => {
             await this.runTask();
         });
         this.#debug(`Task started, first run at ${this.#job.nextInvocation().toString()}`);

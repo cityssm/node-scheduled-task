@@ -1,7 +1,7 @@
-import schedule from 'node-schedule';
+import nodeSchedule from 'node-schedule';
 type TaskFunction = () => void | Promise<void>;
 export interface ScheduledTaskOptions {
-    schedule?: schedule.Spec;
+    schedule?: nodeSchedule.Spec;
     lastRunMillis?: number;
     minimumIntervalMillis?: number;
     startTask?: boolean;
@@ -19,7 +19,7 @@ export declare class ScheduledTask {
      * @see https://www.npmjs.com/package/node-schedule#usage
      * @param schedule The schedule for the task.
      */
-    setSchedule(schedule: schedule.Spec): void;
+    setSchedule(schedule: nodeSchedule.Spec): void;
     /**
      * Checks if the task can run.
      * The task can run if there are no other tasks waiting and the minimum interval has passed.
