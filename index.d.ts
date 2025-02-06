@@ -4,7 +4,6 @@ export interface ScheduledTaskOptions {
     schedule?: schedule.Spec;
     lastRunMillis?: number;
     minimumIntervalMillis?: number;
-    runTask?: boolean;
     startTask?: boolean;
 }
 export declare class ScheduledTask {
@@ -35,6 +34,10 @@ export declare class ScheduledTask {
      * Starts the task.
      */
     startTask(): void;
+    /**
+     * Whether the task has started or not.
+     * @returns `true` if the task has started, `false` otherwise.
+     */
     hasStarted(): boolean;
     /**
      * Stops the task.

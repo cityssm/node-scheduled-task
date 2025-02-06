@@ -34,9 +34,6 @@ export class ScheduledTask {
         }
         this.setLastRunMillis(options.lastRunMillis ?? 0);
         this.setMinimumIntervalMillis(options.minimumIntervalMillis ?? 0);
-        if (options.runTask ?? false) {
-            this.runTask();
-        }
         if (options.startTask ?? false) {
             this.startTask();
         }
@@ -87,6 +84,7 @@ export class ScheduledTask {
                 this.#debug('Running task');
                 await this.#taskFunction();
                 this.setLastRunTime(new Date());
+                this.#debug('Task completed');
             }
             else {
                 this.#debug('Skipping task');
@@ -120,6 +118,10 @@ export class ScheduledTask {
             this.#exitHookIsInitialized = true;
         }
     }
+    /**
+     * Whether the task has started or not.
+     * @returns `true` if the task has started, `false` otherwise.
+     */
     hasStarted() {
         return this.#taskHasStarted;
     }
