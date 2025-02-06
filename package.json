@@ -12,6 +12,10 @@
     "coverage": "c8 --reporter=lcov --reporter=text --reporter=text-summary node --test"
   },
   "keywords": [
+    "async",
+    "child-process",
+    "cron",
+    "schedule",
     "task"
   ],
   "homepage": "https://github.com/cityssm/node-scheduled-task#readme",
