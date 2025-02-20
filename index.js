@@ -11,6 +11,7 @@ export class ScheduledTask {
     #debugNamespace;
     #debug;
     #semaphore = new Sema(1);
+    #catchErrors;
     #lastRunMillis;
     #minimumIntervalMillis;
     #taskHasStarted = false;
@@ -34,6 +35,7 @@ export class ScheduledTask {
         }
         this.setLastRunMillis(options.lastRunMillis ?? 0);
         this.setMinimumIntervalMillis(options.minimumIntervalMillis ?? 0);
+        this.#catchErrors = options.catchErrors ?? true;
         if (options.startTask ?? false) {
             this.startTask();
         }
@@ -88,6 +90,13 @@ export class ScheduledTask {
             }
             else {
                 this.#debug('Skipping task');
+            }
+        }
+        catch (error) {
+            this.#debug('Task errored:', error);
+            if (!this.#catchErrors) {
+                // eslint-disable-next-line @typescript-eslint/only-throw-error
+                throw error;
             }
         }
         finally {

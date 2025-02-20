@@ -14,6 +14,7 @@ export interface ScheduledTaskOptions {
   lastRunMillis?: number
   minimumIntervalMillis?: number
   startTask?: boolean
+  catchErrors?: boolean
 }
 
 export class ScheduledTask {
@@ -24,6 +25,8 @@ export class ScheduledTask {
   readonly #debug: Debug.Debugger
 
   readonly #semaphore = new Sema(1)
+
+  readonly #catchErrors: boolean
 
   #lastRunMillis: number
   #minimumIntervalMillis: number
@@ -59,6 +62,8 @@ export class ScheduledTask {
 
     this.setLastRunMillis(options.lastRunMillis ?? 0)
     this.setMinimumIntervalMillis(options.minimumIntervalMillis ?? 0)
+
+    this.#catchErrors = options.catchErrors ?? true
 
     if (options.startTask ?? false) {
       this.startTask()
@@ -127,6 +132,12 @@ export class ScheduledTask {
         this.#debug('Task completed')
       } else {
         this.#debug('Skipping task')
+      }
+    } catch (error) {
+      this.#debug('Task errored:', error)
+      if (!this.#catchErrors) {
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
+        throw error
       }
     } finally {
       this.#semaphore.release()

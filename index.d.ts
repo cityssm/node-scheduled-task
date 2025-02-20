@@ -5,6 +5,7 @@ export interface ScheduledTaskOptions {
     lastRunMillis?: number;
     minimumIntervalMillis?: number;
     startTask?: boolean;
+    catchErrors?: boolean;
 }
 export declare class ScheduledTask {
     #private;
