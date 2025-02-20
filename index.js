@@ -81,15 +81,12 @@ export class ScheduledTask {
      */
     async runTask() {
         await this.#semaphore.acquire();
+        let taskRun = false;
         try {
             if (Date.now() - this.#lastRunMillis >= this.#minimumIntervalMillis) {
                 this.#debug('Running task');
+                taskRun = true;
                 await this.#taskFunction();
-                this.setLastRunTime(new Date());
-                this.#debug('Task completed');
-            }
-            else {
-                this.#debug('Skipping task');
             }
         }
         catch (error) {
@@ -101,6 +98,13 @@ export class ScheduledTask {
         }
         finally {
             this.#semaphore.release();
+            if (taskRun) {
+                this.setLastRunTime(new Date());
+                this.#debug('Task run completed');
+            }
+            else {
+                this.#debug('Task run skipped');
+            }
         }
     }
     /**
