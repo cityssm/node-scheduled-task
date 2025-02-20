@@ -25,6 +25,17 @@ export class ScheduledTask {
         year: '*'
     };
     #exitHookIsInitialized = false;
+    /**
+     * Creates a new scheduled task.
+     * @param taskName - The name of the task.
+     * @param taskFunction - The function to run when the task is executed.
+     * @param options - Options for the task.
+     * @param options.schedule - The schedule for the task.
+     * @param options.lastRunMillis - The last time the task was run.
+     * @param options.minimumIntervalMillis - The minimum interval between task runs.
+     * @param options.startTask - Whether to start the task on initialization.
+     * @param options.catchErrors - Whether to catch errors thrown by the task.
+     */
     constructor(taskName, taskFunction, options = {}) {
         this.#taskName = taskName;
         this.#taskFunction = taskFunction;
@@ -49,6 +60,11 @@ export class ScheduledTask {
     getLastRunMillis() {
         return this.#lastRunMillis;
     }
+    /**
+     * Sets the minimum interval between task runs.
+     * Can only be called before the task is started.
+     * @param minimumIntervalMillis - The minimum interval between task runs.
+     */
     setMinimumIntervalMillis(minimumIntervalMillis) {
         if (this.#taskHasStarted) {
             throw alreadyStartedError;
