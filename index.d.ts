@@ -1,5 +1,5 @@
 import nodeSchedule from 'node-schedule';
-type TaskFunction = () => void | Promise<void>;
+type TaskFunction = () => Promise<void> | void;
 export interface ScheduledTaskOptions {
     schedule?: nodeSchedule.Spec;
     lastRunMillis?: number;
@@ -35,8 +35,10 @@ export declare class ScheduledTask {
      * Can only be called before the task is started.
      * @see https://www.npmjs.com/package/node-schedule#usage
      * @param schedule The schedule for the task.
+     * @returns `this` for chaining.
+     * @throws If the task has already started.
      */
-    setSchedule(schedule: nodeSchedule.Spec): void;
+    setSchedule(schedule: nodeSchedule.Spec): this;
     /**
      * Checks if the task can run.
      * The task can run if there are no other tasks waiting and the minimum interval has passed.
@@ -49,8 +51,10 @@ export declare class ScheduledTask {
     runTask(): Promise<void>;
     /**
      * Starts the task.
+     * @returns `this` for chaining.
+     * @throws If the task has already started.
      */
-    startTask(): void;
+    startTask(): this;
     /**
      * Whether the task has started or not.
      * @returns `true` if the task has started, `false` otherwise.
@@ -58,7 +62,9 @@ export declare class ScheduledTask {
     hasStarted(): boolean;
     /**
      * Stops the task.
+     * @returns `this` for chaining.
+     * @throws If the task has not started.
      */
-    stopTask(): void;
+    stopTask(): this;
 }
 export * as nodeSchedule from 'node-schedule';

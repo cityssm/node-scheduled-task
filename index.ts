@@ -7,7 +7,7 @@ import nodeSchedule from 'node-schedule'
 import { DEBUG_NAMESPACE } from './debug.config.js'
 import { alreadyStartedError } from './errors.js'
 
-type TaskFunction = () => void | Promise<void>
+type TaskFunction = () => Promise<void> | void
 
 export interface ScheduledTaskOptions {
   schedule?: nodeSchedule.Spec
@@ -18,11 +18,11 @@ export interface ScheduledTaskOptions {
 }
 
 export class ScheduledTask {
-  readonly #taskName: string
   readonly #taskFunction: TaskFunction
+  readonly #taskName: string
 
-  readonly #debugNamespace: string
   readonly #debug: Debug.Debugger
+  readonly #debugNamespace: string
 
   readonly #semaphore = new Sema(1)
 
@@ -33,7 +33,7 @@ export class ScheduledTask {
 
   #taskHasStarted = false
 
-  #job: nodeSchedule.Job | undefined
+  #job: nodeSchedule.Job | null | undefined
   #schedule: nodeSchedule.Spec = {
     second: 0,
     minute: 0,
@@ -111,13 +111,17 @@ export class ScheduledTask {
    * Can only be called before the task is started.
    * @see https://www.npmjs.com/package/node-schedule#usage
    * @param schedule The schedule for the task.
+   * @returns `this` for chaining.
+   * @throws If the task has already started.
    */
-  setSchedule(schedule: nodeSchedule.Spec): void {
+  setSchedule(schedule: nodeSchedule.Spec): this {
     if (this.#taskHasStarted) {
       throw alreadyStartedError
     }
 
     this.#schedule = schedule
+
+    return this
   }
 
   /**
@@ -151,7 +155,6 @@ export class ScheduledTask {
       this.#debug('Task errored:', error)
 
       if (!this.#catchErrors) {
-        // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw error
       }
     } finally {
@@ -168,8 +171,10 @@ export class ScheduledTask {
 
   /**
    * Starts the task.
+   * @returns `this` for chaining.
+   * @throws If the task has already started.
    */
-  startTask(): void {
+  startTask(): this {
     if (this.#taskHasStarted) {
       throw alreadyStartedError
     }
@@ -182,10 +187,24 @@ export class ScheduledTask {
       async () => {
         await this.runTask()
       }
-    )
+    ) as nodeSchedule.Job | null
+
+    if (this.#job === null) {
+      throw new Error(
+        `Failed to schedule task "${this.#taskName}" with schedule: ${JSON.stringify(this.#schedule)}`
+      )
+    }
+
+    const nextInvocation = this.#job.nextInvocation()
+
+    if (nextInvocation === null) {
+      throw new Error(
+        `Failed to get next invocation for task "${this.#taskName}" with schedule: ${JSON.stringify(this.#schedule)}`
+      )
+    }
 
     this.#debug(
-      `Task started, first run at ${this.#job.nextInvocation().toString()}`
+      `Task started, first run at ${nextInvocation.toString()}`
     )
 
     if (!this.#exitHookIsInitialized) {
@@ -198,6 +217,8 @@ export class ScheduledTask {
       })
       this.#exitHookIsInitialized = true
     }
+
+    return this
   }
 
   /**
@@ -210,8 +231,10 @@ export class ScheduledTask {
 
   /**
    * Stops the task.
+   * @returns `this` for chaining.
+   * @throws If the task has not started.
    */
-  stopTask(): void {
+  stopTask(): this {
     if (!this.#taskHasStarted) {
       throw new Error('Task has not started.')
     }
@@ -219,6 +242,8 @@ export class ScheduledTask {
     this.#debug('Stopping task')
     this.#job?.cancel()
     this.#taskHasStarted = false
+
+    return this
   }
 }
 

@@ -6,10 +6,10 @@ import nodeSchedule from 'node-schedule';
 import { DEBUG_NAMESPACE } from './debug.config.js';
 import { alreadyStartedError } from './errors.js';
 export class ScheduledTask {
-    #taskName;
     #taskFunction;
-    #debugNamespace;
+    #taskName;
     #debug;
+    #debugNamespace;
     #semaphore = new Sema(1);
     #catchErrors;
     #lastRunMillis;
@@ -76,12 +76,15 @@ export class ScheduledTask {
      * Can only be called before the task is started.
      * @see https://www.npmjs.com/package/node-schedule#usage
      * @param schedule The schedule for the task.
+     * @returns `this` for chaining.
+     * @throws If the task has already started.
      */
     setSchedule(schedule) {
         if (this.#taskHasStarted) {
             throw alreadyStartedError;
         }
         this.#schedule = schedule;
+        return this;
     }
     /**
      * Checks if the task can run.
@@ -108,7 +111,6 @@ export class ScheduledTask {
         catch (error) {
             this.#debug('Task errored:', error);
             if (!this.#catchErrors) {
-                // eslint-disable-next-line @typescript-eslint/only-throw-error
                 throw error;
             }
         }
@@ -125,6 +127,8 @@ export class ScheduledTask {
     }
     /**
      * Starts the task.
+     * @returns `this` for chaining.
+     * @throws If the task has already started.
      */
     startTask() {
         if (this.#taskHasStarted) {
@@ -134,6 +138,9 @@ export class ScheduledTask {
         this.#job = nodeSchedule.scheduleJob(this.#taskName, this.#schedule, async () => {
             await this.runTask();
         });
+        if (this.#job === null) {
+            throw new Error(`Failed to schedule task "${this.#taskName}" with schedule: ${JSON.stringify(this.#schedule)}`);
+        }
         this.#debug(`Task started, first run at ${this.#job.nextInvocation().toString()}`);
         if (!this.#exitHookIsInitialized) {
             exitHook(() => {
@@ -146,6 +153,7 @@ export class ScheduledTask {
             });
             this.#exitHookIsInitialized = true;
         }
+        return this;
     }
     /**
      * Whether the task has started or not.
@@ -156,6 +164,8 @@ export class ScheduledTask {
     }
     /**
      * Stops the task.
+     * @returns `this` for chaining.
+     * @throws If the task has not started.
      */
     stopTask() {
         if (!this.#taskHasStarted) {
@@ -164,6 +174,7 @@ export class ScheduledTask {
         this.#debug('Stopping task');
         this.#job?.cancel();
         this.#taskHasStarted = false;
+        return this;
     }
 }
 export * as nodeSchedule from 'node-schedule';

@@ -22,18 +22,18 @@ await describe('scheduled-task', async () => {
             schedule: '* * * * * *'
         });
         // Ensure the task can run.
-        assert(task.canRunTask());
+        assert.ok(task.canRunTask());
         // Run the task, then ensure it can't run again.
         task.setMinimumIntervalMillis(minimumIntervalMillis);
         const millisBefore = task.getLastRunMillis();
         await task.runTask();
-        assert(executionCount === 1);
-        assert(task.getLastRunMillis() > millisBefore);
-        assert(!task.canRunTask());
+        assert.ok(executionCount === 1);
+        assert.ok(task.getLastRunMillis() > millisBefore);
+        assert.ok(!task.canRunTask());
         // Ensure the task can't be stopped before it's started.
         try {
             task.stopTask();
-            assert(false);
+            assert.ok(false);
         }
         catch { }
         // Start the task
@@ -41,38 +41,38 @@ await describe('scheduled-task', async () => {
         // Ensure the task can't be started again.
         try {
             task.startTask();
-            assert(false);
+            assert.ok(false);
         }
         catch { }
         // Ensure the minimum interval can't be changed after the task has started.
         try {
             task.setMinimumIntervalMillis(0);
-            assert(false);
+            assert.ok(false);
         }
         catch { }
         // Ensure the schedule can't be changed after the task has started.
         try {
             task.setSchedule('* * * * * *');
-            assert(false);
+            assert.ok(false);
         }
         catch { }
         // Wait half the minimum interval, then ensure the task can't run.
         await delay(minimumIntervalMillis / 2);
-        assert(executionCount === 1); // eslint-disable-line @typescript-eslint/no-unnecessary-condition
-        assert(!task.canRunTask());
+        assert.ok(executionCount === 1); // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+        assert.ok(!task.canRunTask());
         // Wait the other half of the minimum interval, then check the number of executions.
         await delay(minimumIntervalMillis / 2 + taskMillis + 1000);
-        assert(executionCount === 2); // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+        assert.ok(executionCount === 2); // eslint-disable-line @typescript-eslint/no-unnecessary-condition
         // Stop the task
         task.stopTask();
         // Ensure the task can't be stopped again.
         try {
             task.stopTask();
-            assert(false);
+            assert.ok(false);
         }
         catch { }
         // Wait the minimum interval, then ensure the task can run again.
         await delay(minimumIntervalMillis + 1000);
-        assert(task.canRunTask());
+        assert.ok(task.canRunTask());
     });
 });
