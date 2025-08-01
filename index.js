@@ -141,7 +141,11 @@ export class ScheduledTask {
         if (this.#job === null) {
             throw new Error(`Failed to schedule task "${this.#taskName}" with schedule: ${JSON.stringify(this.#schedule)}`);
         }
-        this.#debug(`Task started, first run at ${this.#job.nextInvocation().toString()}`);
+        const nextInvocation = this.#job.nextInvocation();
+        if (nextInvocation === null) {
+            throw new Error(`Failed to get next invocation for task "${this.#taskName}" with schedule: ${JSON.stringify(this.#schedule)}`);
+        }
+        this.#debug(`Task started, first run at ${nextInvocation.toString()}`);
         if (!this.#exitHookIsInitialized) {
             exitHook(() => {
                 try {
