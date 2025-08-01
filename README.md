@@ -1,7 +1,6 @@
 # Scheduled Task
 
 [![NPM Version](https://img.shields.io/npm/v/%40cityssm%2Fscheduled-task)](https://www.npmjs.com/package/@cityssm/scheduled-task)
-[![Maintainability](https://api.codeclimate.com/v1/badges/92e5f4d577e60efb424f/maintainability)](https://codeclimate.com/github/cityssm/node-scheduled-task/maintainability)
 [![codecov](https://codecov.io/gh/cityssm/node-scheduled-task/graph/badge.svg?token=FX2XI74PJQ)](https://codecov.io/gh/cityssm/node-scheduled-task)
 [![DeepSource](https://app.deepsource.com/gh/cityssm/node-scheduled-task.svg/?label=active+issues&show_trend=true&token=iTE12ATmd36uvQAtYrrH7q_B)](https://app.deepsource.com/gh/cityssm/node-scheduled-task/)
 
