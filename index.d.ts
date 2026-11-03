@@ -34,9 +34,9 @@ export declare class ScheduledTask {
      * Sets the schedule for the task.
      * Can only be called before the task is started.
      * @see https://www.npmjs.com/package/node-schedule#usage
-     * @param schedule The schedule for the task.
+     * @param schedule - The schedule for the task.
      * @returns `this` for chaining.
-     * @throws If the task has already started.
+     * @throws {Error} If the task has already started.
      */
     setSchedule(schedule: nodeSchedule.Spec): this;
     /**
@@ -47,12 +47,13 @@ export declare class ScheduledTask {
     canRunTask(): boolean;
     /**
      * Runs the task once.
+     * @returns A promise that resolves when the task has completed.
      */
     runTask(): Promise<void>;
     /**
      * Starts the task.
      * @returns `this` for chaining.
-     * @throws If the task has already started.
+     * @throws {Error} If the task has already started.
      */
     startTask(): this;
     /**
@@ -63,8 +64,9 @@ export declare class ScheduledTask {
     /**
      * Stops the task.
      * @returns `this` for chaining.
-     * @throws If the task has not started.
+     * @throws {Error} If the task has not started.
      */
     stopTask(): this;
 }
+export { DEBUG_NAMESPACE } from './debug.config.js';
 export * as nodeSchedule from 'node-schedule';

@@ -1,11 +1,13 @@
+/* eslint-disable perfectionist/sort-classes */
+import { debuglog } from 'node:util'
+
 import { Sema } from 'async-sema'
 import camelCase from 'camelcase'
-import Debug from 'debug'
 import exitHook from 'exit-hook'
 import nodeSchedule from 'node-schedule'
 
 import { DEBUG_NAMESPACE } from './debug.config.js'
-import { alreadyStartedError } from './errors.js'
+import { alreadyStartedError, notStartedError } from './errors.js'
 
 type TaskFunction = () => Promise<void> | void
 
@@ -21,7 +23,7 @@ export class ScheduledTask {
   readonly #taskFunction: TaskFunction
   readonly #taskName: string
 
-  readonly #debug: Debug.Debugger
+  readonly #debug: ReturnType<typeof debuglog>
   readonly #debugNamespace: string
 
   readonly #semaphore = new Sema(1)
@@ -65,14 +67,14 @@ export class ScheduledTask {
     this.#taskFunction = taskFunction
 
     this.#debugNamespace = `${DEBUG_NAMESPACE}:${camelCase(taskName)}`
-    this.#debug = Debug(this.#debugNamespace)
+    this.#debug = debuglog(this.#debugNamespace)
 
     if (options.schedule !== undefined) {
       this.setSchedule(options.schedule)
     }
 
-    this.setLastRunMillis(options.lastRunMillis ?? 0)
-    this.setMinimumIntervalMillis(options.minimumIntervalMillis ?? 0)
+    this.#lastRunMillis = options.lastRunMillis ?? 0
+    this.#minimumIntervalMillis = options.minimumIntervalMillis ?? 0
 
     this.#catchErrors = options.catchErrors ?? true
 
@@ -110,9 +112,9 @@ export class ScheduledTask {
    * Sets the schedule for the task.
    * Can only be called before the task is started.
    * @see https://www.npmjs.com/package/node-schedule#usage
-   * @param schedule The schedule for the task.
+   * @param schedule - The schedule for the task.
    * @returns `this` for chaining.
-   * @throws If the task has already started.
+   * @throws {Error} If the task has already started.
    */
   setSchedule(schedule: nodeSchedule.Spec): this {
     if (this.#taskHasStarted) {
@@ -138,16 +140,17 @@ export class ScheduledTask {
 
   /**
    * Runs the task once.
+   * @returns A promise that resolves when the task has completed.
    */
   async runTask(): Promise<void> {
     await this.#semaphore.acquire()
 
-    let taskRun = false
+    let wasTaskRun = false
 
     try {
       if (Date.now() - this.#lastRunMillis >= this.#minimumIntervalMillis) {
         this.#debug('Running task')
-        taskRun = true
+        wasTaskRun = true
 
         await this.#taskFunction()
       }
@@ -160,7 +163,7 @@ export class ScheduledTask {
     } finally {
       this.#semaphore.release()
 
-      if (taskRun) {
+      if (wasTaskRun) {
         this.setLastRunTime(new Date())
         this.#debug('Task run completed')
       } else {
@@ -172,7 +175,7 @@ export class ScheduledTask {
   /**
    * Starts the task.
    * @returns `this` for chaining.
-   * @throws If the task has already started.
+   * @throws {Error} If the task has already started.
    */
   startTask(): this {
     if (this.#taskHasStarted) {
@@ -203,9 +206,7 @@ export class ScheduledTask {
       )
     }
 
-    this.#debug(
-      `Task started, first run at ${nextInvocation.toString()}`
-    )
+    this.#debug(`Task started, first run at ${nextInvocation.toString()}`)
 
     if (!this.#exitHookIsInitialized) {
       exitHook(() => {
@@ -232,11 +233,11 @@ export class ScheduledTask {
   /**
    * Stops the task.
    * @returns `this` for chaining.
-   * @throws If the task has not started.
+   * @throws {Error} If the task has not started.
    */
   stopTask(): this {
     if (!this.#taskHasStarted) {
-      throw new Error('Task has not started.')
+      throw notStartedError
     }
 
     this.#debug('Stopping task')
@@ -246,5 +247,7 @@ export class ScheduledTask {
     return this
   }
 }
+
+export { DEBUG_NAMESPACE } from './debug.config.js'
 
 export * as nodeSchedule from 'node-schedule'

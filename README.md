@@ -4,8 +4,9 @@
 [![codecov](https://codecov.io/gh/cityssm/node-scheduled-task/graph/badge.svg?token=FX2XI74PJQ)](https://codecov.io/gh/cityssm/node-scheduled-task)
 [![DeepSource](https://app.deepsource.com/gh/cityssm/node-scheduled-task.svg/?label=active+issues&show_trend=true&token=iTE12ATmd36uvQAtYrrH7q_B)](https://app.deepsource.com/gh/cityssm/node-scheduled-task/)
 
-Schedules recurring tasks while managing on-demand executions and limiting simultaneous executions.
-Helpful for managing process-heavy tasks running in child processes.
+Schedules recurring tasks while managing on-demand executions and limiting
+simultaneous executions. Helpful for managing process-heavy tasks running in
+child processes.
 
 ## Installation
 
@@ -52,12 +53,25 @@ process.on('message', (_message) => {
 
 #### Options
 
-| Option                  | Description                                                                                                                          | Default  |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | -------- |
-| `schedule`              | The frequency the task should run. See [node-schedule](https://www.npmjs.com/package/node-schedule) for acceptable schedule formats. | Midnight |
-| `lastRunMillis`         | The last time the task was executed. Helpful to avoid rerunning a task too soon after a restart.                                     | `0`      |
-| `minimumIntervalMillis` | The minimum amount of time between executions. Helpful if the task can be run on demand.                                             | `0`      |
-| `startTask`             | Whether the task should be started immediately after initialization.                                                                 | `false`  |
+`schedule`<br />
+The frequency the task should run. See
+[node-schedule](https://www.npmjs.com/package/node-schedule) for acceptable
+schedule formats.<br />
+_Default: Midnight_
+
+`lastRunMillis`<br />
+The last time the task was executed.
+Helpful to avoid rerunning a task too soon after a restart.<br />
+_Default: `0`_
+
+`minimumIntervalMillis`<br />
+The minimum amount of time between executions.
+Helpful if the task can be run on demand.<br />
+_Default: `0`_
+
+`startTask`<br />
+Whether the task should be started immediately after initialization.<br />
+_Default: `false`
 
 ### Application
 

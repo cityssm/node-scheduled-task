@@ -1,19 +1,19 @@
-// eslint-disable-next-line @eslint-community/eslint-comments/disable-enable-pair
+/* eslint-disable @typescript-eslint/no-unsafe-type-assertion */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
+/* eslint-disable node-test/no-async-describe */
 
 import assert from 'node:assert'
 import { describe, it } from 'node:test'
+import { promisify } from 'node:util'
 
-import Debug from 'debug'
-
-import { DEBUG_ENABLE_NAMESPACES } from '../debug.config.js'
+import {
+  alreadyStartedErrorMessage,
+  notStartedErrorMessage
+} from '../errors.js'
 import { ScheduledTask } from '../index.js'
 
-const delay = async (delayInMs: number): Promise<void> =>
-  // eslint-disable-next-line promise/avoid-new, @typescript-eslint/return-await
-  new Promise((resolve) => setTimeout(resolve, delayInMs))
-
-Debug.enable(DEBUG_ENABLE_NAMESPACES)
+// eslint-disable-next-line @typescript-eslint/strict-void-return
+const delay = promisify(setTimeout)
 
 await describe('scheduled-task', async () => {
   await it('should run', async () => {
@@ -42,54 +42,63 @@ await describe('scheduled-task', async () => {
 
     const millisBefore = task.getLastRunMillis()
     await task.runTask()
-    assert.ok(executionCount === 1)
+    assert.strictEqual(executionCount, 1)
     assert.ok(task.getLastRunMillis() > millisBefore)
     assert.ok(!task.canRunTask())
 
     // Ensure the task can't be stopped before it's started.
-    try {
-      task.stopTask()
-      assert.ok(false)
-    } catch {}
+    assert.throws(
+      () => {
+        task.stopTask()
+      },
+      (error) => (error as Error).message === notStartedErrorMessage
+    )
 
     // Start the task
     task.startTask()
 
     // Ensure the task can't be started again.
-    try {
-      task.startTask()
-      assert.ok(false)
-    } catch {}
+    assert.throws(
+      () => {
+        task.startTask()
+      },
+      (error) => (error as Error).message === alreadyStartedErrorMessage
+    )
 
     // Ensure the minimum interval can't be changed after the task has started.
-    try {
-      task.setMinimumIntervalMillis(0)
-      assert.ok(false)
-    } catch {}
+    assert.throws(
+      () => {
+        task.setMinimumIntervalMillis(0)
+      },
+      (error) => (error as Error).message === alreadyStartedErrorMessage
+    )
 
     // Ensure the schedule can't be changed after the task has started.
-    try {
-      task.setSchedule('* * * * * *')
-      assert.ok(false)
-    } catch {}
+    assert.throws(
+      () => {
+        task.setSchedule('* * * * * *')
+      },
+      (error) => (error as Error).message === alreadyStartedErrorMessage
+    )
 
     // Wait half the minimum interval, then ensure the task can't run.
     await delay(minimumIntervalMillis / 2)
-    assert.ok(executionCount === 1) // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+    assert.strictEqual(executionCount, 1)
     assert.ok(!task.canRunTask())
 
     // Wait the other half of the minimum interval, then check the number of executions.
     await delay(minimumIntervalMillis / 2 + taskMillis + 1000)
-    assert.ok(executionCount === 2) // eslint-disable-line @typescript-eslint/no-unnecessary-condition
-
+    assert.strictEqual(executionCount, 2)
     // Stop the task
     task.stopTask()
 
     // Ensure the task can't be stopped again.
-    try {
-      task.stopTask()
-      assert.ok(false)
-    } catch {}
+    assert.throws(
+      () => {
+        task.stopTask()
+      },
+      (error) => (error as Error).message === notStartedErrorMessage
+    )
 
     // Wait the minimum interval, then ensure the task can run again.
     await delay(minimumIntervalMillis + 1000)

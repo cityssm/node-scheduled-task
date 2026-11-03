@@ -19,27 +19,34 @@
   },
   "license": "MIT",
   "author": "The Corporation of the City of Sault Ste. Marie",
+  "sideEffects": false,
   "type": "module",
   "exports": {
     ".": "./index.js",
     "./debug": "./debug.config.js"
   },
+  "files": [
+    "debug.config.*",
+    "errors.*",
+    "index.*"
+  ],
   "scripts": {
-    "coverage": "c8 --reporter=lcov --reporter=text --reporter=text-summary node --test",
-    "test": "node --test"
+    "coverage": "c8 --reporter=lcov --reporter=text --reporter=text-summary node --env-file=\".test.env\" --test",
+    "test": "node --env-file=\".test.env\" --test"
   },
   "dependencies": {
     "async-sema": "^3.1.1",
-    "camelcase": "^8.0.0",
-    "debug": "^4.4.1",
-    "exit-hook": "^4.0.0",
-    "node-schedule": "^2.1.1"
+    "camelcase": "^10.0.0",
+    "exit-hook": "^5.1.0",
+    "node-schedule": "^2.1.2"
   },
   "devDependencies": {
-    "@types/debug": "^4.1.12",
-    "@types/node": "^24.1.0",
+    "@types/node": "^26.6.6",
     "@types/node-schedule": "^2.1.8",
-    "eslint-config-cityssm": "^27.1.0",
-    "prettier-config-cityssm": "^1.0.0"
+    "eslint-config-cityssm": "^59.0.1",
+    "prettier-config-cityssm": "^2.2.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
   }
 }
