@@ -71,7 +71,7 @@ _Default: `0`_
 
 `startTask`<br />
 Whether the task should be started immediately after initialization.<br />
-_Default: `false`
+_Default: `false`_
 
 ### Application
 
