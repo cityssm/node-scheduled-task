@@ -73,6 +73,11 @@ _Default: `0`_
 Whether the task should be started immediately after initialization.<br />
 _Default: `false`_
 
+`catchErrors`<br />
+Whether errors thrown during task execution should be caught internally.
+If `false`, errors will propagate to the parent process.<br />
+_Default: `true`_
+
 ### Application
 
 ```javascript

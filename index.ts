@@ -12,10 +12,29 @@ import { alreadyStartedError, notStartedError } from './errors.js'
 type TaskFunction = () => Promise<void> | void
 
 export interface ScheduledTaskOptions {
+  /**
+   * The schedule for the task.
+   */
   schedule?: nodeSchedule.Spec
+
+  /**
+   * The last time the task was run.
+   */
   lastRunMillis?: number
+
+  /**
+   * The minimum interval between task runs.
+   */
   minimumIntervalMillis?: number
+
+  /**
+   * Whether to start the task on initialization.
+   */
   startTask?: boolean
+
+  /**
+   * Whether to catch errors thrown by the task.
+   */
   catchErrors?: boolean
 }
 
@@ -216,6 +235,7 @@ export class ScheduledTask {
           // Ignore errors
         }
       })
+
       this.#exitHookIsInitialized = true
     }
 
