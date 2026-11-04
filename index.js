@@ -1,7 +1,6 @@
 /* eslint-disable perfectionist/sort-classes */
 import { debuglog } from 'node:util';
 import { Sema } from 'async-sema';
-import camelCase from 'camelcase';
 import exitHook from 'exit-hook';
 import nodeSchedule from 'node-schedule';
 import { DEBUG_NAMESPACE } from './debug.config.js';
@@ -40,7 +39,7 @@ export class ScheduledTask {
     constructor(taskName, taskFunction, options = {}) {
         this.#taskName = taskName;
         this.#taskFunction = taskFunction;
-        this.#debugNamespace = `${DEBUG_NAMESPACE}:${camelCase(taskName)}`;
+        this.#debugNamespace = `${DEBUG_NAMESPACE}:${taskName.toLowerCase().replaceAll(' ', '-')}`;
         this.#debug = debuglog(this.#debugNamespace);
         if (options.schedule !== undefined) {
             this.setSchedule(options.schedule);
